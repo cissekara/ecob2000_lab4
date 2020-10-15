@@ -1,0 +1,84 @@
+setwd(C:\Users\Kara Cisse\Documents\FALL2020ECONOMETRICS)
+attach(acs2017_ny)
+use_varb <- (AGE >= 25) & (AGE <= 55) & (LABFORCE == 2) & (WKSWORK2 > 4) & (UHRSWORK >= 35)
+dat_use <- subset(acs2017_ny,use_varb) # 
+detach(acs2017_ny)
+attach(dat_use)
+summary(dat_use)
+print(dat_use)
+female <- as.factor(female)
+levels(female) <- c("male","female")
+summary(female)
+INCWAGE ~ AGE + (female == 1)
+INCWAGE ~ AGE + (DEGFIELD == 1)
+
+Agriculture <- summary(female[DEGFIELD == "Agriculture"])
+print("Agriculture")
+summary("Agriculture")
+mean(Agriculture) 
+sd(Agriculture) 
+barplot(Agriculture)
+stargazer(Agriculture, type = "text")
+
+model_temp1 <- lm(INCWAGE ~ AGE + female + AfAm + Asian + Amindian + race_oth + Hispanic + educ_hs + educ_somecoll + educ_college + educ_advdeg)
+summary(model_temp1)
+plot(model_temp1)
+require(stargazer)
+require(AER)
+stargazer(model_temp1, type = "text")
+
+model_temp2 <- lm(INCWAGE ~ FAMSIZE + female + AfAm + Asian + Amindian + race_oth + Hispanic + educ_hs + educ_somecoll + educ_college + educ_advdeg)
+summary(model_temp2)
+plot(model_temp2)
+plot(model_temp2, which = 3)
+require(stargazer)
+require(AER)
+stargazer(model_temp2, type = "text")
+
+
+model_temp3 <- lm(INCWAGE > "10000" ~ NCHILD + female + AfAm + Asian + Amindian + race_oth + Hispanic + educ_hs + educ_somecoll + educ_college + educ_advdeg)
+summary(model_temp3)
+plot(model_temp3)
+summary(model_temp3)
+plot(model_temp3)
+require(stargazer)
+require(AER)
+stargazer(model_temp2, type = "text")
+
+NN_obs <-length(INCWAGE)
+set.seed(12345)
+sampl_obs <-runif(NN_obs) <.5
+dat_graph <-subset(dat_use,sampl_obs)
+summary(dat_graph)
+require(stargazer)
+require(AER)
+stargazer(dat_graph)    
+
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), data = dat_graph)
+# ^^ that looks like crap since Wages are soooooooo skew!  So try to find some sensible ylim = c(0, ??)
+plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+# discus what you see in this plot
+
+plot(INCWAGE ~ jitter(NCHILD, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), data = dat_graph)
+# ^^ that looks like crap since Wages are soooooooo skew!  So try to find some sensible ylim = c(0, ??)
+plot(INCWAGE ~ jitter(NCHILD, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+# discus what you see in this plot
+ 
+
+# change this line to fit your regression
+to_be_predicted2 <- data.frame(AGE = 25:55, female = 1, AfAm = 0, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 0, educ_hs = 1, educ_somecoll = 1, educ_college = 1, educ_advdeg = 1)
+to_be_predicted2$yhat <- predict(model_temp1, newdata = to_be_predicted2)
+
+lines(yhat ~ AGE, data = to_be_predicted2)
+
+#To have R do a linear regression, we use the command "lm()" as for example model1 <- lm(Y ~ X1) summary(model1)
+#Or with the PUMS NY data, create a variable for fraction of income spent on housing then replace the zero-income (thus Inf value) with missing NA values: 
+
+fraction_housing <- (OWNCOST + RENT)/INCTOT  
+.na(fraction_housing) <- is.infinite(fraction_housing) 
+model2 <- lm(fraction_housing ~ AGE) 
+summary(model2) 1111
+lm <- lm(INCTOT ~ AGE, data=dat_use)
+plot(lm)
+lm2 <- lm(log(INCTOT) ~ AGE, data=dat_use)
+plot(lm2)
